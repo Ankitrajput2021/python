@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Expense Tracker</h1>
+
+        <!-- Form to add an expense -->
+        <form method="POST" action="/" class="expense-form">
+            <div class="form-group">
+                <label for="amount">Amount:</label>
+                <input type="number" name="amount" id="amount" step="0.01" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="category">Category:</label>
+                <input type="text" name="category" id="category" required>
+            </div>
+
+            <button type="submit" name="add" class="add-btn">Add Expense</button>
+        </form>
+
+        <h2>Expenses</h2>
+        <ul class="expense-list">
+            {% for expense in expenses %}
+                <li class="expense-item">
+                    <span class="expense-details">₹{{ expense.amount }} - {{ expense.category }}</span>
+                    <!-- Form to delete the expense -->
+                    <form method="POST" action="/" class="delete-form">
+                        <input type="hidden" name="expense_id" value="{{ loop.index0 }}">
+                        <button type="submit" name="delete" class="delete-btn">Delete</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <div class="total-expense">
+            <h3>Total Expense: ₹{{ total_expense }}</h3>
+        </div>
+    </div>
+</body>
+</html>
