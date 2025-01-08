@@ -1,11 +1,16 @@
 from flask import Flask, render_template, request, redirect, url_for
+import os
 
 app = Flask(__name__)
+
+# Define the file path for expenses.txt
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+EXPENSES_FILE = os.path.join(BASE_DIR, "expenses.txt")
 
 # Load expenses from a file
 def load_expenses():
     try:
-        with open("expenses.txt", "r") as file:
+        with open(EXPENSES_FILE, "r") as file:
             expenses = [line.strip().split(",") for line in file.readlines()]
             return [{"amount": float(expense[0]), "category": expense[1]} for expense in expenses]
     except FileNotFoundError:
@@ -13,7 +18,7 @@ def load_expenses():
 
 # Save expenses to a file
 def save_expenses(expenses):
-    with open("expenses.txt", "w") as file:
+    with open(EXPENSES_FILE, "w") as file:
         for expense in expenses:
             file.write(f"{expense['amount']},{expense['category']}\n")
 
@@ -26,18 +31,19 @@ def index():
     expenses = load_expenses()
 
     if request.method == "POST":
-        # Get expense details from the form
-        if "add" in request.form:
+        if "add" in request.form:  # Handle adding an expense
             amount = float(request.form["amount"])
-            category = request.form["category"]
+            category = request.form["category"].strip()
             
             # Add expense to the list
             expenses.append({"amount": amount, "category": category})
             save_expenses(expenses)
-        elif "delete" in request.form:
+
+        elif "delete" in request.form:  # Handle deleting an expense
             expense_id = int(request.form["expense_id"])
-            expenses.pop(expense_id)
-            save_expenses(expenses)
+            if 0 <= expense_id < len(expenses):
+                expenses.pop(expense_id)
+                save_expenses(expenses)
 
         return redirect(url_for("index"))
 
